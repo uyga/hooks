@@ -1,0 +1,28 @@
+#!/usr/bin/php
+<?php
+$pushed_changes = trim(stream_get_contents(STDIN));
+$pushed_changes = array_map(function ($change) { return explode(' ', trim($change)); }, explode("\n", $pushed_changes));
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+require_once(dirname(__FILE__) . '/bootstrap.php');
+
+// check branch first; than all tags
+usort(
+    $pushed_changes,
+    function ($first_change, $second_change) {
+        if (strpos($first_change[2], 'refs/tags/') !== false) {
+            return 1;
+        } else if (strpos($second_change[2], 'refs/tags/') !== false) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+);
+foreach ($pushed_changes as $change) {
+    list($old_revision, $new_revision, $reference) = $change;
+    $hook = new HookPostReceive($old_revision, $new_revision, $reference);
+    $hook->run();
+}

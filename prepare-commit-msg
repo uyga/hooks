@@ -1,0 +1,14 @@
+#!/bin/bash
+
+###############################################################################
+# INSTALLATION
+# `cd ~/badoo`
+# `ln -Ffnsv ../../_deploy/hooks/prepare-commit-msg .git/hooks/prepare-commit-msg`
+###############################################################################
+
+b=`git symbolic-ref HEAD| sed -e 's|^refs/heads/||' | sed -e 's|_.*||'`
+c=`cat $1`
+if [ -n "$b" ] && [[ "$c" != "[$b]:"* ]]
+then
+    echo "[$b]: $c" > $1
+fi

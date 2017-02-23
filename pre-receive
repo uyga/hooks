@@ -1,0 +1,35 @@
+#!/usr/bin/php
+<?php
+$pushed_changes = trim(stream_get_contents(STDIN));
+$pushed_changes = array_map(function ($change) { return explode(' ', trim($change)); }, explode("\n", $pushed_changes));
+$pushed_branches = array_filter($pushed_changes, function ($change) { return strpos($change[2], 'refs/tags/') === false; });
+
+if (count($pushed_branches) > 1) {
+    echo "\n[ERROR]: You're not allowed to push several branches at once\n\n";
+    exit(1);
+}
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+require_once(dirname(__FILE__) . '/bootstrap.php');
+
+// check branch first; than all tags
+usort(
+    $pushed_changes,
+    function ($first_change, $second_change) {
+        if (strpos($first_change[2], 'refs/tags/') !== false) {
+            return 1;
+        } else if (strpos($second_change[2], 'refs/tags/') !== false) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+);
+foreach ($pushed_changes as $change) {
+    list($old_revision, $new_revision, $reference) = $change;
+    $hook = new HookPreReceive($old_revision, $new_revision, $reference);
+    $hook->run();
+}
+
