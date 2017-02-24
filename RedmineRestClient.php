@@ -1,7 +1,5 @@
 <?php
 
-namespace GitPHP;
-
 class RedmineRestClient
 {
     const
@@ -15,6 +13,11 @@ class RedmineRestClient
 
     const REST_URL = '/';
     const URL = 'https://your.redmine.com';
+
+    const CUSTOM_FIELDS = [
+        //name => id
+        'review' => 20,
+    ];
 
     protected static $instance = null;
     protected $url;
@@ -53,6 +56,31 @@ class RedmineRestClient
         $issue_key = (int)$issue_key;
         $issue = new \StdClass();
         $issue->notes = $comment;
+        return $this->_put('issues/' . $issue_key . '.json', ['issue' => $issue]);
+    }
+
+    public function setFieldValue($issue_key, array $fields)
+    {
+        $issue_key = (int)$issue_key;
+        $issue = new StdClass();
+        foreach ($fields as $field => $value) {
+            $issue->$field = $value;
+        }
+        return $this->_put('issues/' . $issue_key . '.json', ['issue' => $issue]);
+    }
+
+    public function setCustomFieldValue($issue_key, array $fields)
+    {
+        $issue_key = (int)$issue_key;
+        $issue = new StdClass();
+        $custom_fields = [];
+        foreach ($fields as $name => $value) {
+            $cf = new StdClass();
+            $cf->value = $value;
+            $cf->id = self::CUSTOM_FIELDS[$name];
+            $custom_fields[] = $cf;
+        }
+        $issue->custom_fields = $custom_fields;
         return $this->_put('issues/' . $issue_key . '.json', ['issue' => $issue]);
     }
 

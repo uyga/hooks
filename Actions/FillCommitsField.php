@@ -11,7 +11,8 @@ class Action_FillCommitsField extends Action_ActionAbstract
         ) {
             foreach ($m[1] as $issue) {
                 try {
-                    $Issue = JiraRestClient::getInstance()->getIssue($issue);
+                    //Jira
+                    /*$Issue = JiraRestClient::getInstance()->getIssue($issue);
                     if ($Issue) {
                         JiraRestClient::getInstance()->setFieldValue(
                             $issue,
@@ -21,6 +22,19 @@ class Action_FillCommitsField extends Action_ActionAbstract
                                 . $this->Hook->getRepoName() . '&a=branchlog&h=' . $this->Hook->getReference()
                                 . '] | [branchdiff|' . $this->Hook::GITPHP_URL . '?p=' . $this->Hook->getRepoName()
                                 . '&a=branchdiff&branch=' . $this->Hook->getRefName() . ']'
+                        );
+                    }*/
+                    //redmine
+                    $Issue = RedmineRestClient::getInstance()->getIssue($issue);
+                    if ($Issue) {
+                        RedmineRestClient::getInstance()->setCustomFieldValue(
+                            $issue,
+                            ['review' => $this->Hook->getRefName()
+                                . ' "branchlog":' . $this->Hook::GITPHP_URL . '?p='
+                                . $this->Hook->getRepoName() . '&a=branchlog&h=' . $this->Hook->getReference()
+                                . ' | "branchdiff":' . $this->Hook::GITPHP_URL . '?p=' . $this->Hook->getRepoName()
+                                . '&a=branchdiff&branch=' . $this->Hook->getRefName()
+                            ]
                         );
                     }
                 } catch (Exception $e) {

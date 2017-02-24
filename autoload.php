@@ -10,4 +10,5 @@ return array(
     'Action_CheckMasterPush'        => HOOKS_BASEDIR . 'Actions/CheckMasterPush.php',
     'Action_NotifyGitwatchers'      => HOOKS_BASEDIR . 'Actions/NotifyGitwatchers.php',
     'JiraRestClient'                => HOOKS_BASEDIR . 'JiraRestClient.php',
+    'RedmineRestClient'             => HOOKS_BASEDIR . 'RedmineRestClient.php',
 );
