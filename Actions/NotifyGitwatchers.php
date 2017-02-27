@@ -13,7 +13,12 @@ class Action_NotifyGitwatchers extends Action_ActionAbstract
             . (empty($this->email_tags) ? '' : '[' . implode('] [', $this->email_tags) . ']')
             . ' author: ' . $this->Hook->getUser();
 
-        $message = "Files modified: \n"
+        $tracker_url = '';
+        if (preg_match_all($this->Hook::ISSUE_REGEX, $this->Hook->getRefName(), $m)) {
+            $tracker_url = "Issue: <a href='" . RedmineRestClient::URL . '/issues/' . $m[1] . "'></a>\n\n";
+        }
+
+        $message = $tracker_url . "Files modified: \n"
             . $diff['files'] . "\n\n--------------------------------------\n\n"
             . $diff['log'] . "\n\n--------------------------------------\n\n"
             . $diff['diff'];
